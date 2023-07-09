@@ -14,6 +14,7 @@ CONVERSATION_PATH = os.path.join(BASE_PATH, "conversation.json")
 ENGINE = {"gpt4": "gpt-4", "gpt3.5": "gpt-3.5-turbo"}
 KEYWORDS = ["as an ai", "as an artificial", "as a language"]
 
+
 def load_environment_keys():
     with open(KEYS_PATH, "r") as f:
         for line in f:
@@ -28,7 +29,11 @@ def read_file_or_default(filename, default):
         return default
 
 def clean_conversation(conversation):
-    return [x for x in conversation if not any(k in x["content"].lower() for k in KEYWORDS)]
+    return [
+        x for x in conversation
+        if x["role"] != "assistant" or not any(k in x["content"].lower() for k in KEYWORDS)
+    ]
+
 
 def openai_initialize():
     openai.organization = os.environ["OPENAI_ORGANIZATION"]
@@ -41,6 +46,16 @@ def openai_response(engine, conversation):
         max_tokens=1024,
         temperature=1
     )
+
+def input_you():
+    return input(f"{Fore.YELLOW}\n\nYou: ")
+
+def print_you(content):
+    print(f"{Fore.YELLOW}\n\nYou: {content}")
+
+def print_assistant(content):
+    print(f"{Fore.BLUE}\n\n{content}")
+
 
 def main(args):
     load_environment_keys()
@@ -60,8 +75,14 @@ def main(args):
     conversation = clean_conversation(conversation)
     conversation.append({"role": "system", "content": system_content})
 
+    for msg in conversation:
+        if msg["role"] == "user":
+            print_you(f"{msg['content']}")
+        elif msg["role"] == "assistant":
+            print_assistant(f"{msg['content']}")
+
     while True:
-        user_input = input(f"{Fore.YELLOW}\n\nYou: ")
+        user_input = input_you()
 
         if len(conversation) >= 10:
             conversation = [msg for msg in conversation if msg["role"] != "system"]
@@ -74,7 +95,7 @@ def main(args):
         assistant_reply = response['choices'][0]['message']['content'].strip()
         pyperclip.copy(assistant_reply)
 
-        print(f"{Fore.BLUE}\n\n{assistant_reply}")
+        print_assistant(f"{assistant_reply}")
 
         conversation.append({"role": "assistant", "content": assistant_reply})
         with open(CONVERSATION_PATH, "w", encoding="utf-8") as file:
