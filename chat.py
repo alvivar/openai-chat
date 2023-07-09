@@ -61,11 +61,11 @@ def main(args):
     load_environment_keys()
     openai_initialize()
 
-    system_content = read_file_or_default(" ".join(args.prompt_file), "Consider previous conversations in your answers. Don't complain.")
+    system_content = read_file_or_default(" ".join(args.prompt_file), "Consider previous conversations in your answers. Match the user personality. Don't complain.")
     engine = ENGINE["gpt4"] if args.gpt4 else ENGINE["gpt3.5"]
 
-    print(f"{Fore.MAGENTA}\nchat.py")
-    print(f"{engine.upper()}: {system_content}")
+    print(f"{Fore.MAGENTA}\nchat.py powered by {engine.upper()}")
+    print(f"System prompt: \"{system_content}\"")
 
     conversation = []
     if not args.clean and os.path.isfile(CONVERSATION_PATH):
