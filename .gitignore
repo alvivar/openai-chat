@@ -1,4 +1,4 @@
 .vscode/
-conversation.json
 keys.txt
+log.*.json
 role*
