@@ -8,9 +8,9 @@ from colorama import Fore  # type: ignore
 
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-KEYS_PATH = os.path.join(BASE_PATH, "keys.txt")
-FULL_PATH = os.path.join(BASE_PATH, "log.full.json")
-LAST_PATH = os.path.join(BASE_PATH, "log.last.json")
+KEYS_FILE = os.path.join(BASE_PATH, "keys.txt")
+FULL_FILE = os.path.join(BASE_PATH, "log.full.json")
+LAST_FILE = os.path.join(BASE_PATH, "log.last.json")
 
 MAX_TOKENS = 1024
 TEMPERATURE = 1.5
@@ -22,12 +22,12 @@ DEFAULT_PROMPT = "Consider previous messages in your answers. Match the user per
 
 def load_environment_keys():
     """
-    Expecting a file with content like this:
+    Expecting a file named {KEYS_FILE} with content like this:
 
     OPENAI_ORGANIZATION=org-aQ975daacbuA9nbD
     OPENAI_API_KEY=sk-jOaNijiBAR1lWV9pKn6IuB8MIHT0p38R
     """
-    with open(KEYS_PATH, "r") as f:
+    with open(KEYS_FILE, "r") as f:
         for line in f:
             key, value = line.strip().split("=")
             os.environ[key] = value
@@ -90,8 +90,8 @@ def main(args):
     print(f"System prompt: \"{system_content}\"")
 
     messages = []
-    if not args.clean and os.path.isfile(FULL_PATH):
-        messages = load_json(FULL_PATH)
+    if not args.clean and os.path.isfile(FULL_FILE):
+        messages = load_json(FULL_FILE)
 
     for msg in messages[-10:]:
         if msg["role"] == "user":
@@ -106,14 +106,14 @@ def main(args):
         filtered = filter_unwanted(messages)[-4:]
         filtered.insert(0, {"role": "system", "content": system_content})
 
-        dump_json(LAST_PATH, filtered)
+        dump_json(LAST_FILE, filtered)
 
         response = openai_response(engine, filtered)
         assistant_reply = response['choices'][0]['message']['content'].strip()
         pyperclip.copy(assistant_reply)
         messages.append({"role": "assistant", "content": assistant_reply})
 
-        dump_json(FULL_PATH, messages)
+        dump_json(FULL_FILE, messages)
 
         if any(k in assistant_reply.lower() for k in KEYWORDS):
             assistant_reply = "..."
