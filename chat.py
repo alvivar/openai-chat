@@ -9,12 +9,15 @@ from colorama import Fore  # type: ignore
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 KEYS_PATH = os.path.join(BASE_PATH, "keys.txt")
-CHAT_PATH = os.path.join(BASE_PATH, "log.full.json")
+FULL_PATH = os.path.join(BASE_PATH, "log.full.json")
 LAST_PATH = os.path.join(BASE_PATH, "log.last.json")
 
-ENGINE = {"gpt4": "gpt-4", "gpt3.5": "gpt-3.5-turbo"}
+MAX_TOKENS = 1024
+TEMPERATURE = 1.5
+
+ENGINE = {"gpt4": "gpt-4", "gpt3": "gpt-3.5-turbo"}
 KEYWORDS = ["as an ai", "as an artificial", "as a language", "can't", "cannot"]
-DEFAULT_PROMPT = "Consider previous chats in your answers. Match the user personality. Don't complain."
+DEFAULT_PROMPT = "Consider previous messages in your answers. Match the user personality. Don't complain."
 
 
 def load_environment_keys():
@@ -56,9 +59,9 @@ def print_you(content):
 def print_assistant(content):
     print(f"{Fore.BLUE}\n\n{content}")
 
-def filter_unwanted(chat):
+def filter_unwanted(messages):
     return [
-        x for x in chat
+        x for x in messages
         if x["role"] == "user" or
            x["role"] == "assistant" and not any(k in x["content"].lower() for k in KEYWORDS)
     ]
@@ -67,12 +70,12 @@ def openai_initialize():
     openai.organization = os.environ["OPENAI_ORGANIZATION"]
     openai.api_key = os.environ["OPENAI_API_KEY"]
 
-def openai_response(engine, chat):
+def openai_response(engine, messages):
     return openai.ChatCompletion.create(
         model=engine,
-        messages=chat,
-        max_tokens=1024,
-        temperature=1
+        messages=messages,
+        max_tokens=MAX_TOKENS,
+        temperature=TEMPERATURE
     )
 
 
@@ -81,16 +84,16 @@ def main(args):
     openai_initialize()
 
     system_content = read_prompt_or(" ".join(args.prompt_file), DEFAULT_PROMPT)
-    engine = ENGINE["gpt4"] if args.gpt4 else ENGINE["gpt3.5"]
+    engine = ENGINE["gpt4"] if args.gpt4 else ENGINE["gpt3"]
 
     print(f"{Fore.MAGENTA}\nchat.py powered by {engine.upper()}")
     print(f"System prompt: \"{system_content}\"")
 
-    chat = []
-    if not args.clean and os.path.isfile(CHAT_PATH):
-        chat = load_json(CHAT_PATH)
+    messages = []
+    if not args.clean and os.path.isfile(FULL_PATH):
+        messages = load_json(FULL_PATH)
 
-    for msg in chat[-10:]:
+    for msg in messages[-10:]:
         if msg["role"] == "user":
             print_you(f"{msg['content']}")
         elif msg["role"] == "assistant":
@@ -99,18 +102,18 @@ def main(args):
     while True:
         user_input = input_you()
 
-        chat.append({"role": "user", "content": user_input})
-        filtered_chat = filter_unwanted(chat)[-4:]
-        filtered_chat.insert(0, {"role": "system", "content": system_content})
+        messages.append({"role": "user", "content": user_input})
+        filtered = filter_unwanted(messages)[-4:]
+        filtered.insert(0, {"role": "system", "content": system_content})
 
-        dump_json(LAST_PATH, filtered_chat)
+        dump_json(LAST_PATH, filtered)
 
-        response = openai_response(engine, filtered_chat)
+        response = openai_response(engine, filtered)
         assistant_reply = response['choices'][0]['message']['content'].strip()
         pyperclip.copy(assistant_reply)
-        chat.append({"role": "assistant", "content": assistant_reply})
+        messages.append({"role": "assistant", "content": assistant_reply})
 
-        dump_json(CHAT_PATH, chat)
+        dump_json(FULL_PATH, messages)
 
         if any(k in assistant_reply.lower() for k in KEYWORDS):
             assistant_reply = "..."
@@ -122,7 +125,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("prompt_file", nargs="*", help="System prompt file")
     parser.add_argument("--gpt4", action="store_const", const=True, help="Use GPT-4 instead of GPT-3.5 Turbo")
-    parser.add_argument("--clean", action="store_const", const=True, help="Ignore previous chats")
+    parser.add_argument("--clean", action="store_const", const=True, help="Ignore previous messages")
     args = parser.parse_args()
 
     main(args)
