@@ -29,14 +29,34 @@ def load_environment_keys():
             key, value = line.strip().split("=")
             os.environ[key] = value
 
-def read_file_or(filename, default):
+def read_prompt_or(filename, default):
     if os.path.isfile(filename):
         with open(filename, "r", encoding="utf-8") as file:
             return " ".join(file.read().split())
     else:
         return default
 
-def clean(chat):
+def load_json(path):
+    try:
+        with open(path, "r", encoding="utf-8") as file:
+            return json.load(file)
+    except:
+        return []
+
+def dump_json(path, data):
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(data, file)
+
+def input_you():
+    return input(f"{Fore.YELLOW}\n\nYou: ")
+
+def print_you(content):
+    print(f"{Fore.YELLOW}\n\nYou: {content}")
+
+def print_assistant(content):
+    print(f"{Fore.BLUE}\n\n{content}")
+
+def filter_unwanted(chat):
     return [
         x for x in chat
         if x["role"] == "user" or
@@ -55,21 +75,12 @@ def openai_response(engine, chat):
         temperature=1
     )
 
-def input_you():
-    return input(f"{Fore.YELLOW}\n\nYou: ")
-
-def print_you(content):
-    print(f"{Fore.YELLOW}\n\nYou: {content}")
-
-def print_assistant(content):
-    print(f"{Fore.BLUE}\n\n{content}")
-
 
 def main(args):
     load_environment_keys()
     openai_initialize()
 
-    system_content = read_file_or(" ".join(args.prompt_file), DEFAULT_PROMPT)
+    system_content = read_prompt_or(" ".join(args.prompt_file), DEFAULT_PROMPT)
     engine = ENGINE["gpt4"] if args.gpt4 else ENGINE["gpt3.5"]
 
     print(f"{Fore.MAGENTA}\nchat.py powered by {engine.upper()}")
@@ -77,8 +88,7 @@ def main(args):
 
     chat = []
     if not args.clean and os.path.isfile(CHAT_PATH):
-        with open(CHAT_PATH, "r", encoding="utf-8") as file:
-            chat = json.load(file)
+        chat = load_json(CHAT_PATH)
 
     for msg in chat[-10:]:
         if msg["role"] == "user":
@@ -90,19 +100,17 @@ def main(args):
         user_input = input_you()
 
         chat.append({"role": "user", "content": user_input})
-        filtered_chat = clean(chat)[-4:]
+        filtered_chat = filter_unwanted(chat)[-4:]
         filtered_chat.insert(0, {"role": "system", "content": system_content})
 
-        with open(LAST_PATH, "w", encoding="utf-8") as file:
-            json.dump(filtered_chat, file)
+        dump_json(LAST_PATH, filtered_chat)
 
         response = openai_response(engine, filtered_chat)
         assistant_reply = response['choices'][0]['message']['content'].strip()
         pyperclip.copy(assistant_reply)
         chat.append({"role": "assistant", "content": assistant_reply})
 
-        with open(CHAT_PATH, "w", encoding="utf-8") as file:
-            json.dump(chat, file)
+        dump_json(CHAT_PATH, chat)
 
         if any(k in assistant_reply.lower() for k in KEYWORDS):
             assistant_reply = "..."
