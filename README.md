@@ -14,11 +14,13 @@ A simple continuous chat with OpenAI GPT3 and GPT4.
 
 ## Auth
 
--   Expecting a file named {KEYS_FILE} with content like this, every line in
-    this file gets transformed into an environmental variable.
+-   Expects a file named **keys.txt** where every line becomes an environmental
+    variable.
 
+```
     OPENAI_ORGANIZATION=org-aQ975daacbuA9nbD
     OPENAI_API_KEY=sk-jOaNijiBAR1lWV9pKn6IuB8MIHT0p38R
+```
 
 ## To do
 
