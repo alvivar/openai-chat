@@ -1,4 +1,5 @@
 .vscode/
+docs/
 keys.txt
 log.*.json
 role*
