@@ -15,7 +15,8 @@ A simple continuous chat with OpenAI GPT3 and GPT4.
 ## To do
 
 -   Different conversations on different logs
+-   An argument should represent the amount of previous messages sent to give more contexts
 -   Handle OpenAI API errors
--   ENV stuff instead of keys.txt by default
 -   Prompt should be an argument (?)
 -   Support other engines by argument
+-   ENV stuff instead of keys.txt by default
