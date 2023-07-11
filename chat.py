@@ -20,14 +20,14 @@ KEYWORDS = ["as an ai", "as an artificial", "as a language", "can't", "cannot"]
 DEFAULT_PROMPT = "Consider previous messages in your answers. Match the user personality. Don't complain."
 
 
-def load_environment_keys():
+def load_environment_keys(filename):
     """
     Expecting a file named {KEYS_FILE} with content like this:
 
     OPENAI_ORGANIZATION=org-aQ975daacbuA9nbD
     OPENAI_API_KEY=sk-jOaNijiBAR1lWV9pKn6IuB8MIHT0p38R
     """
-    with open(KEYS_FILE, "r") as f:
+    with open(filename, "r") as f:
         for line in f:
             key, value = line.strip().split("=")
             os.environ[key] = value
@@ -80,7 +80,7 @@ def openai_response(engine, messages):
 
 
 def main(args):
-    load_environment_keys()
+    load_environment_keys(KEYS_FILE)
     openai_initialize()
 
     system_content = read_prompt_or(" ".join(args.prompt_file), DEFAULT_PROMPT)
