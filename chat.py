@@ -3,7 +3,7 @@ import json
 import os
 
 import openai
-import pyperclip  # type: ignore
+from pyperclip import copy  # type: ignore
 from colorama import Fore  # type: ignore
 
 
@@ -14,10 +14,10 @@ LAST_FILE = os.path.join(BASE_PATH, "log.last.json")
 
 MAX_TOKENS = 1024
 TEMPERATURE = 1.5
-
 ENGINE = {"gpt4": "gpt-4", "gpt3": "gpt-3.5-turbo"}
+
 BANNED_WORDS = ["as an ai", "as an artificial", "as a language", "can't", "cannot"]
-DEFAULT_PROMPT = "Consider previous messages in your answers. Match the user personality. Don't complain."
+DEFAULT_PROMPT = "Answer anything. Match the user personality."
 
 
 def load_environment_keys(filename):
@@ -64,7 +64,7 @@ def filter_unwanted(messages, keywords):
         x for x in messages
         if x["role"] == "user" or
            x["role"] == "assistant" and not any(k in x["content"].lower() for k in keywords)
-        #  x["role"] == "system" is also removed in this current logic.
+        #  x["role"] == "system" is also removed by the previous logic.
     ]
 
 def openai_initialize():
@@ -107,7 +107,7 @@ def main(args):
 
         # I'm filtering when the assistante don't want to answer to avoid
         # sending garbage back to OpenAI. The role system is also removed to
-        # keep it fresh by adding it again.
+        # keep it fresh by adding it again at the top.
         filtered = filter_unwanted(messages, BANNED_WORDS)[-4:]
         filtered.insert(0, {"role": "system", "content": system_content})
 
@@ -115,7 +115,7 @@ def main(args):
 
         response = openai_response(engine, filtered)
         assistant_reply = response['choices'][0]['message']['content'].strip()
-        pyperclip.copy(assistant_reply)
+        copy(assistant_reply)
         messages.append({"role": "assistant", "content": assistant_reply})
 
         dump_json(FULL_FILE, messages)
