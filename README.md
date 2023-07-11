@@ -12,6 +12,14 @@ A simple continuous chat with OpenAI GPT3 and GPT4.
     --gpt4       Use GPT-4 instead of GPT-3.5 Turbo
     --clean      Ignore previous messages
 
+## Auth
+
+-   Expecting a file named {KEYS_FILE} with content like this, every line in
+    this file gets transformed into an environmental variable.
+
+    OPENAI_ORGANIZATION=org-aQ975daacbuA9nbD
+    OPENAI_API_KEY=sk-jOaNijiBAR1lWV9pKn6IuB8MIHT0p38R
+
 ## To do
 
 -   Different conversations on different logs
