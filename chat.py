@@ -64,7 +64,7 @@ def filter_unwanted(messages, keywords):
         x for x in messages
         if x["role"] == "user" or
            x["role"] == "assistant" and not any(k in x["content"].lower() for k in keywords)
-        #  x["role"] == "system" is also removed by the previous logic.
+        #  x["role"] == "system" is also expected to be removed with this logic.
     ]
 
 def openai_initialize():
@@ -94,7 +94,7 @@ def main(args):
     if not args.clean and os.path.isfile(FULL_FILE):
         messages = load_json(FULL_FILE)
 
-    for msg in messages[-10:]:
+    for msg in messages[-10:]: # @todo Make it an argument?
         if msg["role"] == "user":
             print_you(f"{msg['content']}")
         elif msg["role"] == "assistant":
@@ -108,7 +108,7 @@ def main(args):
         # I'm filtering when the assistante don't want to answer to avoid
         # sending garbage back to OpenAI. The role system is also removed to
         # keep it fresh by adding it again at the top.
-        filtered = filter_unwanted(messages, BANNED_WORDS)[-4:]
+        filtered = filter_unwanted(messages, BANNED_WORDS)[-4:] # @todo Make it an argument.
         filtered.insert(0, {"role": "system", "content": system_content})
 
         dump_json(LAST_FILE, filtered)
