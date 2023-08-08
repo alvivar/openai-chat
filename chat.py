@@ -3,8 +3,8 @@ import json
 import os
 
 import openai
-from pyperclip import copy  # type: ignore
-from colorama import Fore  # type: ignore
+from colorama import Fore
+from pyperclip import copy
 
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -32,12 +32,20 @@ def load_environment_keys(filename):
             key, value = line.strip().split("=")
             os.environ[key] = value
 
+
 def read_prompt_or(filename, default):
     if os.path.isfile(filename):
         with open(filename, "r", encoding="utf-8") as file:
-            return " ".join(file.read().split())
+            text = ""
+            for line in file:
+                if line.strip().startswith("#"):
+                    continue
+                text += line
+
+            return " ".join(text.split())
     else:
         return default
+
 
 def load_json(path):
     try:
@@ -46,37 +54,43 @@ def load_json(path):
     except:
         return []
 
+
 def dump_json(path, data):
     with open(path, "w", encoding="utf-8") as file:
         json.dump(data, file)
 
+
 def input_you():
     return input(f"{Fore.YELLOW}\n\nYou: ")
+
 
 def print_you(content):
     print(f"{Fore.YELLOW}\n\nYou: {content}")
 
+
 def print_assistant(content):
     print(f"{Fore.BLUE}\n\n{content}")
 
+
 def filter_unwanted(messages, keywords):
     return [
-        x for x in messages
-        if x["role"] == "user" or
-           x["role"] == "assistant" and not any(k in x["content"].lower() for k in keywords)
+        x
+        for x in messages
+        if x["role"] == "user"
+        or x["role"] == "assistant"
+        and not any(k in x["content"].lower() for k in keywords)
         #  x["role"] == "system" is also expected to be removed with this logic.
     ]
+
 
 def openai_initialize():
     openai.organization = os.environ["OPENAI_ORGANIZATION"]
     openai.api_key = os.environ["OPENAI_API_KEY"]
 
+
 def openai_response(engine, messages):
     return openai.ChatCompletion.create(
-        model=engine,
-        messages=messages,
-        max_tokens=MAX_TOKENS,
-        temperature=TEMPERATURE
+        model=engine, messages=messages, max_tokens=MAX_TOKENS, temperature=TEMPERATURE
     )
 
 
@@ -88,13 +102,13 @@ def main(args):
     engine = ENGINE["gpt4"] if args.gpt4 else ENGINE["gpt3"]
 
     print(f"{Fore.MAGENTA}\nchat.py powered by {engine.upper()}")
-    print(f"System prompt: \"{system_content}\"")
+    print(f'System prompt: "{system_content}"')
 
     messages = []
     if not args.clean and os.path.isfile(FULL_FILE):
         messages = load_json(FULL_FILE)
 
-    for msg in messages[-10:]: # @todo Make it an argument?
+    for msg in messages[-10:]:  # @todo Make it an argument?
         if msg["role"] == "user":
             print_you(f"{msg['content']}")
         elif msg["role"] == "assistant":
@@ -108,13 +122,14 @@ def main(args):
         # I'm filtering when the assistante don't want to answer to avoid
         # sending garbage back to OpenAI. The role system is also removed to
         # keep it fresh by adding it again at the top.
-        filtered = filter_unwanted(messages, BANNED_WORDS)[-4:] # @todo Make it an argument.
+        # @todo Make it an argument.
+        filtered = filter_unwanted(messages, BANNED_WORDS)[-4:]
         filtered.insert(0, {"role": "system", "content": system_content})
 
         dump_json(LAST_FILE, filtered)
 
         response = openai_response(engine, filtered)
-        assistant_reply = response['choices'][0]['message']['content'].strip()
+        assistant_reply = response["choices"][0]["message"]["content"].strip()
         copy(assistant_reply)
         messages.append({"role": "assistant", "content": assistant_reply})
 
@@ -126,8 +141,15 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("prompt_file", nargs="*", help="System prompt file")
-    parser.add_argument("--gpt4", action="store_const", const=True, help="Use GPT-4 instead of GPT-3.5 Turbo")
-    parser.add_argument("--clean", action="store_const", const=True, help="Ignore previous messages")
+    parser.add_argument(
+        "--gpt4",
+        action="store_const",
+        const=True,
+        help="Use GPT-4 instead of GPT-3.5 Turbo",
+    )
+    parser.add_argument(
+        "--clean", action="store_const", const=True, help="Ignore previous messages"
+    )
     args = parser.parse_args()
 
     main(args)
