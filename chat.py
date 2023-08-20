@@ -30,7 +30,7 @@ def load_environment_keys(filename):
     with open(filename, "r") as f:
         for line in f:
             key, value = line.strip().split("=")
-            os.environ[key] = value
+            os.environ[key.strip()] = value.strip()
 
 
 def read_prompt_or(filename, default):
