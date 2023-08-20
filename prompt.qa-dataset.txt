@@ -1,10 +1,8 @@
 Convert the following information into a structured question/answer JSON dataset
-to finetune a GPT model.
+to fine-tune a GPT model. Please ensure to include all the content."
 
-Please ensure to include all the content.
-
-Here is the expected format:
+JSON Dataset Example:
 
     [ { "question": "Question content.", "answer": "Answer content." }, ... ]
 
-Here is the text:
+Here is the information:
