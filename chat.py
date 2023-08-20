@@ -24,8 +24,8 @@ def load_environment_keys(filename):
     """
     Expecting a file named {KEYS_FILE} with content like this:
 
-    OPENAI_ORGANIZATION=org-aQ975daacbuA9nbD
-    OPENAI_API_KEY=sk-jOaNijiBAR1lWV9pKn6IuB8MIHT0p38R
+    OPENAI_ORGANIZATION=org-eXZlNW56dmt5d2Zq
+    OPENAI_API_KEY=sk-YWs5aHRtbHFhdWpidWpmc3YxeTVjZXR1
     """
     with open(filename, "r") as f:
         for line in f:
@@ -78,7 +78,7 @@ def filter_unwanted(messages, keywords):
         for x in messages
         if x["role"] == "user"
         or x["role"] == "assistant"
-        and not any(k in x["content"].lower() for k in keywords)
+        and not any(kw in x["content"].lower() for kw in keywords)
         #  x["role"] == "system" is also expected to be removed with this logic.
     ]
 
