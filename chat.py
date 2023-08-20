@@ -16,8 +16,15 @@ MAX_TOKENS = 2048
 TEMPERATURE = 1
 ENGINE = {"gpt4": "gpt-4", "gpt3": "gpt-3.5-turbo"}
 
-BANNED_WORDS = ["as an ai", "as an artificial", "as a language", "can't", "cannot"]
 DEFAULT_PROMPT = "Answer anything. Match the user personality."
+BANNED_WORDS = [
+    "as an ai",
+    "as an artificial",
+    "as a language",
+    "can't",
+    "cannot",
+    "no puedo",
+]
 
 
 def load_environment_keys(filename):
