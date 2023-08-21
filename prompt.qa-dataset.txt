@@ -1,5 +1,5 @@
 Convert the following information into a structured question/answer JSON dataset
-to fine-tune a GPT model. Please ensure to include all the content."
+to fine-tune a GPT model. Please ensure to include all the content.
 
 JSON Dataset Example:
 
