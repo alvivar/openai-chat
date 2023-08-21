@@ -2,6 +2,8 @@
 
 A simple continuous chat with OpenAI GPT3 and GPT4.
 
+And some additional prompt files.
+
 ```
 usage: chat.py [-h] [--gpt4] [--clean] [prompt_file ...]
 
@@ -20,15 +22,13 @@ options:
     variable.
 
 ```
-OPENAI_ORGANIZATION=org-aQ975daacbuA9nbD
-OPENAI_API_KEY=sk-jOaNijiBAR1lWV9pKn6IuB8MIHT0p38R
+OPENAI_ORGANIZATION=org-YVE5NzVkYWFjYnVB
+OPENAI_API_KEY=sk-ak9hTmlqaUJBUjFsV1Y5cEtuNkl1QjhN
 ```
 
 ## To do
 
--   Different conversations on different logs
--   An argument should represent the amount of previous messages sent to give more contexts
--   Handle OpenAI API errors
--   Prompt should be an argument (?)
--   Support other engines by argument
--   ENV stuff instead of keys.txt by default
+-   Separate different conversations into different logs.
+-   Include an argument to represent the number of previous messages sent to provide more context.
+-   Handle OpenAI API errors.
+-   Support other engines through an argument.
