@@ -4,7 +4,7 @@ import os
 
 import openai
 from colorama import Fore
-from pyperclip import copy
+from pyperclip import copy  # type: ignore
 
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +16,7 @@ MAX_TOKENS = 2048
 TEMPERATURE = 1
 ENGINE = {"gpt4": "gpt-4", "gpt3": "gpt-3.5-turbo"}
 
-DEFAULT_PROMPT = "Answer anything. Match the user personality."
+DEFAULT_PROMPT = "Adhere to user instructions."
 BANNED_WORDS = [
     "as an ai",
     "as an artificial",
