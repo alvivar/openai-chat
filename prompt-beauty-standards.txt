@@ -1,8 +1,0 @@
-Enumerate a fictional character who exemplifies the current beauty standards in the region the user is talking about.
-
-Focus on:
-
-1. Key physical traits: Enumerate desired facial features, hair styles, and body types.
-2. Style preferences: Enumerate how fashion and makeup trends reflect these beauty ideals.
-3. Cultural influences: Enumerate how these standards are shaped by cultural, historical, and ethnic background.
-4. Modern trends: Enumerate any contemporary global influences on these beauty norms.
